@@ -1,0 +1,111 @@
+table fact_vendas
+	lineageTag: c29aec83-4be7-420c-91f8-bb8f2ee8ef1d
+
+	measure 'Qtd. de Vendas' = COUNT(fact_vendas[venda_id])
+		formatString: 0
+		lineageTag: 32d907df-d8c9-4483-b71a-3f299a6dcd53
+
+	column venda_id
+		dataType: int64
+		formatString: 0
+		lineageTag: f0dc9efe-32f6-4c54-b897-468d1ee1e706
+		summarizeBy: sum
+		sourceColumn: venda_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3688494c-a1ec-4511-94bb-88e84faa2bfc
+		summarizeBy: none
+		sourceColumn: data_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column cliente_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 20a89083-a1d4-4eed-bd08-42d5b3a68e78
+		summarizeBy: none
+		sourceColumn: cliente_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column produto_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 87bf2ac9-83da-49f7-9f3e-2afae7ac0349
+		summarizeBy: none
+		sourceColumn: produto_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column canal_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 1e6b0035-6199-4792-8743-01eae6f6d498
+		summarizeBy: none
+		sourceColumn: canal_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column valor_bruto
+		dataType: decimal
+		lineageTag: f885f217-40ca-499c-bcf5-ea8d7965166e
+		summarizeBy: sum
+		sourceColumn: valor_bruto
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column desconto
+		dataType: decimal
+		lineageTag: 464cca19-2176-4878-8363-00aecf7267c5
+		summarizeBy: sum
+		sourceColumn: desconto
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column valor_liquido
+		dataType: decimal
+		lineageTag: 05be300f-19ec-45dd-9cb5-1642dbd63ac9
+		summarizeBy: sum
+		sourceColumn: valor_liquido
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column venda_gratuita
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 878ab50c-e1fe-4956-bcc8-e2487e1e3422
+		summarizeBy: none
+		sourceColumn: venda_gratuita
+
+		annotation SummarizationSetBy = Automatic
+
+	column status_pagamento
+		dataType: string
+		lineageTag: 3e5a3e16-2812-463e-9c4a-7081e2d42c0f
+		summarizeBy: none
+		sourceColumn: status_pagamento
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_vendas = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(PastaRepo & "\dados\fact_vendas.csv"), [Delimiter = ",", Columns = 10, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"venda_id", Int64.Type}, {"data_id", Int64.Type}, {"cliente_id", Int64.Type}, {"produto_id", Int64.Type}, {"canal_id", Int64.Type}, {"valor_bruto", Currency.Type}, {"desconto", Currency.Type}, {"valor_liquido", Currency.Type}, {"venda_gratuita", type logical}, {"status_pagamento", type text}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_ResultType = Table
+

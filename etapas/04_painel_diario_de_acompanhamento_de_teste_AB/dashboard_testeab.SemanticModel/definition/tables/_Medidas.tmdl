@@ -1,0 +1,510 @@
+table _Medidas
+	lineageTag: 244be53f-58c4-5e40-b6f9-1f4b583007ed
+
+	measure 'Duração Planejada' = 21
+		formatString: 0
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: 6c893b55-342f-5572-8556-28be9ebd4474
+
+	measure 'Janela Conversão' = 7
+		formatString: 0
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: 765303db-a391-57cf-b64b-7767771b5aec
+
+	measure Baseline = 0.20
+		formatString: 0.0%
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: b9c3eeba-7d9c-56e3-a23b-a379f2e42f9a
+
+	measure MDE = 0.02
+		formatString: 0.0%
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: c2a5348a-5d7e-5deb-a07f-625c8d2540b6
+
+	measure 'Início Teste' =
+			CALCULATE (
+			    MIN ( ab_testes[dt_atribuicao] ),
+			    REMOVEFILTERS ( ab_testes ),
+			    ab_testes[experimento] = "exp_onboarding_v2"
+			)
+		formatString: dd/mm/yyyy
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: cc8ba9fc-96ab-5d64-b3ca-318b6c5b9318
+
+	measure 'Fim Entrada' = [Início Teste] + [Duração Planejada] - 1
+		formatString: dd/mm/yyyy
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: 408875ff-e923-5714-a27b-9859738627d7
+
+	measure 'Data Decisão' = [Fim Entrada] + [Janela Conversão]
+		formatString: dd/mm/yyyy
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: f0754a56-7f99-5b76-a414-f0b6f97a75e7
+
+	measure 'Corte Selecionado' = MAX ( Corte[Data] )
+		formatString: dd/mm/yyyy
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: c815c87c-8763-5f13-90d3-a7f072ada6ca
+
+	measure 'Corte Efetivo' =
+			-- Nos gráficos de evolução, cada ponto do eixo é o corte (vazio depois da data escolhida);
+			-- nos cartões, vale a data da segmentação
+			VAR _selecionado = [Corte Selecionado]
+			RETURN
+			    IF (
+			        ISFILTERED ( 'Linha do Tempo'[Data] ),
+			        VAR _ponto = MAX ( 'Linha do Tempo'[Data] )
+			        RETURN IF ( _ponto <= _selecionado, _ponto ),
+			        _selecionado
+			    )
+		formatString: dd/mm/yyyy
+		displayFolder: 1. Parâmetros e datas
+		lineageTag: 49bd77fa-1b7e-58fe-b121-7f6964457ce1
+
+	measure 'Atribuídos C' =
+			VAR _limite = [Corte Efetivo]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( ab_testes ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "controle",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: 096597e9-35df-5e94-a4b5-2eaaf96c282e
+
+	measure 'Atribuídos B' =
+			VAR _limite = [Corte Efetivo]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( ab_testes ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "variante_b",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: 5ad1f61a-26bb-581d-a0d8-0cb465d183fa
+
+	measure 'Maduros C' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( ab_testes ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "controle",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: 00c3b013-b89e-592a-90cf-dbc0c6272404
+
+	measure 'Maduros B' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        COUNTROWS ( ab_testes ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "variante_b",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: cf927af0-4c1e-51e7-93da-516cd5f5d210
+
+	measure 'Usuários Maduros' = [Maduros C] + [Maduros B]
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: eb40a8cb-cfb5-52ed-861e-a919e6b791e2
+
+	measure 'Conversões C' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        SUM ( ab_testes[converteu] ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "controle",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: 7268ceb7-b9c2-50f7-bdd4-5f4368b1fcd9
+
+	measure 'Conversões B' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        SUM ( ab_testes[converteu] ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "variante_b",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: #,0
+		displayFolder: 2. Contagens até o corte
+		lineageTag: f9ee22a5-ce11-5d51-8354-487c4a4a25f5
+
+	measure 'Taxa C' = DIVIDE ( [Conversões C], [Maduros C] )
+		formatString: 0.00%
+		displayFolder: 3. Conversão e IC
+		lineageTag: 9eed3ecc-f959-572a-bdb9-492cbf1b3949
+
+	measure 'Taxa B' = DIVIDE ( [Conversões B], [Maduros B] )
+		formatString: 0.00%
+		displayFolder: 3. Conversão e IC
+		lineageTag: 05a4ba07-63e6-5b50-9d1a-6dfa54096574
+
+	measure 'Tem Leitura' = [Maduros C] > 0 && [Maduros B] > 0
+		displayFolder: 3. Conversão e IC
+		lineageTag: c15e868b-a616-53f2-949e-eb39bdab0bd9
+
+	measure 'Δ p.p.' = IF ( [Tem Leitura], ( [Taxa B] - [Taxa C] ) * 100 )
+		formatString: +0.00 \p\.\p\.;-0.00 \p\.\p\.;0.00 \p\.\p\.
+		displayFolder: 3. Conversão e IC
+		lineageTag: ad0cbafb-364b-57ea-9d56-aefa070a8d9c
+
+	measure 'EP Δ' =
+			-- Erro padrão da diferença de proporções (Wald, sem pooling)
+			IF (
+			    [Tem Leitura],
+			    SQRT ( [Taxa C] * ( 1 - [Taxa C] ) / [Maduros C] + [Taxa B] * ( 1 - [Taxa B] ) / [Maduros B] )
+			)
+		formatString: 0.0000
+		displayFolder: 3. Conversão e IC
+		lineageTag: 7610eb3c-a489-56e7-ab59-b7548c5b250e
+
+	measure 'IC Inf p.p.' = IF ( [Tem Leitura], [Δ p.p.] - 1.959964 * [EP Δ] * 100 )
+		formatString: +0.00 \p\.\p\.;-0.00 \p\.\p\.;0.00 \p\.\p\.
+		displayFolder: 3. Conversão e IC
+		lineageTag: ece775a2-0b39-5779-a56d-941256046c43
+
+	measure 'IC Sup p.p.' = IF ( [Tem Leitura], [Δ p.p.] + 1.959964 * [EP Δ] * 100 )
+		formatString: +0.00 \p\.\p\.;-0.00 \p\.\p\.;0.00 \p\.\p\.
+		displayFolder: 3. Conversão e IC
+		lineageTag: 874cb725-9d8c-5640-8be4-58e63afe76f8
+
+	measure 'Δ Relativo' = IF ( [Tem Leitura], DIVIDE ( [Taxa B] - [Taxa C], [Taxa C] ) )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 3. Conversão e IC
+		lineageTag: 2b5c052c-da31-58c1-ab4e-f97d996252fb
+
+	measure 'IC Rel Inf' = IF ( [Tem Leitura], DIVIDE ( [IC Inf p.p.] / 100, [Taxa C] ) )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 3. Conversão e IC
+		lineageTag: 05eeff90-5e6a-547c-ad82-650b38943af4
+
+	measure 'IC Rel Sup' = IF ( [Tem Leitura], DIVIDE ( [IC Sup p.p.] / 100, [Taxa C] ) )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 3. Conversão e IC
+		lineageTag: 0f710c32-20aa-5661-9631-edc3bfb7aeae
+
+	measure 'z Δ' = IF ( [Tem Leitura], DIVIDE ( [Taxa B] - [Taxa C], [EP Δ] ) )
+		formatString: +0.00;-0.00;0.00
+		displayFolder: 3. Conversão e IC
+		lineageTag: 60273e84-ad50-5f9f-ac7c-c0810146a818
+
+	measure p-valor = IF ( [Tem Leitura], 2 * ( 1 - NORM.S.DIST ( ABS ( [z Δ] ), TRUE ) ) )
+		formatString: 0.000
+		displayFolder: 3. Conversão e IC
+		lineageTag: 72804a43-97b5-53bd-b98f-8e52960df1b5
+
+	measure 'Ref MDE' = IF ( [Tem Leitura], [MDE] * 100 )
+		formatString: +0.00 \p\.\p\.;-0.00 \p\.\p\.;0.00 \p\.\p\.
+		displayFolder: 3. Conversão e IC
+		lineageTag: 8d15a6c5-fd2a-51eb-8dcc-33d75cbb70b1
+
+	measure 'Ref Zero' = IF ( [Tem Leitura], 0 )
+		formatString: +0.00 \p\.\p\.;-0.00 \p\.\p\.;0.00 \p\.\p\.
+		displayFolder: 3. Conversão e IC
+		lineageTag: d332b245-cdbc-5da0-9d38-8f697014d397
+
+	measure 'Atribuídos Total' = [Atribuídos C] + [Atribuídos B]
+		formatString: #,0
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: fd93c436-33c9-56c9-be41-948171340a53
+
+	measure '% Variante' = DIVIDE ( [Atribuídos B], [Atribuídos Total] )
+		formatString: 0.0%
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: 1c751ac5-9d4c-5b4d-8895-22e183138720
+
+	measure 'SRM z' = DIVIDE ( [Atribuídos B] - [Atribuídos Total] / 2, SQRT ( [Atribuídos Total] / 4 ) )
+		formatString: +0.00;-0.00;0.00
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: 8da3cdb6-c230-561e-a6e4-32cdb9682899
+
+	measure 'Alerta SRM' =
+			-- |z| > 3,29 equivale a p < 0,001: limiar para checagem repetida todo dia
+			ABS ( [SRM z] ) > 3.29
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: 197b9aca-f07c-5602-a1c4-35eb094be100
+
+	measure 'Dias Entrada Decorridos' = MAX ( 0, MIN ( INT ( [Corte Efetivo] - [Início Teste] ) + 1, [Duração Planejada] ) )
+		formatString: 0
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: 31032f20-18fb-5d14-a443-dab2ac9f581e
+
+	measure '% Duração' = DIVIDE ( [Dias Entrada Decorridos], [Duração Planejada] )
+		formatString: 0%
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: c7c433ac-7f1a-5205-9d08-7917d3340f61
+
+	measure 'Amostra Necessária por Braço' =
+			-- n por braço para detectar Baseline -> Baseline + MDE, alfa 5% bilateral, poder 80%
+			VAR _p1 = [Baseline]
+			VAR _p2 = [Baseline] + [MDE]
+			VAR _z = NORM.S.INV ( 0.975 ) + NORM.S.INV ( 0.80 )
+			RETURN ROUNDUP ( _z ^ 2 * ( _p1 * ( 1 - _p1 ) + _p2 * ( 1 - _p2 ) ) / [MDE] ^ 2, 0 )
+		formatString: #,0
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: 787127ab-d58e-55fa-a6df-b704f832ea86
+
+	measure '% Amostra Atingida' = DIVIDE ( MIN ( [Maduros C], [Maduros B] ), [Amostra Necessária por Braço] )
+		formatString: 0%
+		displayFolder: 4. Divisão, duração e amostra
+		lineageTag: d8fe2f64-2597-5719-8b6a-99984d5296a5
+
+	measure 'RPU C' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        AVERAGE ( ab_testes[receita] ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "controle",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: "R$"\ #,0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: ff3d0f55-2323-53a8-b8d3-df49e44c17e0
+
+	measure 'RPU B' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        AVERAGE ( ab_testes[receita] ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "variante_b",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: "R$"\ #,0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: fc3a41fc-8ca1-53ac-8403-0ad9b5c8f535
+
+	measure 'Var Receita C' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        VAR.S ( ab_testes[receita] ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "controle",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: 0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: b108479e-ef1a-5833-a580-1dfe90079f91
+
+	measure 'Var Receita B' =
+			VAR _limite = [Corte Efetivo] - [Janela Conversão]
+			RETURN
+			    CALCULATE (
+			        VAR.S ( ab_testes[receita] ),
+			        ab_testes[experimento] = "exp_onboarding_v2",
+			        ab_testes[variante] = "variante_b",
+			        ab_testes[dt_atribuicao] <= _limite
+			    )
+		formatString: 0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: cb1222dc-e049-55dc-8095-f07913b50618
+
+	measure 'Δ RPU' = IF ( [Tem Leitura], [RPU B] - [RPU C] )
+		formatString: +"R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ 0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: 14067d8d-d06c-5385-8f2f-e16286d99f97
+
+	measure 'EP RPU' = IF ( [Tem Leitura], SQRT ( [Var Receita C] / [Maduros C] + [Var Receita B] / [Maduros B] ) )
+		formatString: 0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: ba8b5b2a-f72e-515e-9817-ecb41c4705a9
+
+	measure 'IC RPU Inf' = IF ( [Tem Leitura], [Δ RPU] - 1.959964 * [EP RPU] )
+		formatString: +"R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ 0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: 9eac8f21-fa99-5071-a37b-64a0c9b9e008
+
+	measure 'IC RPU Sup' = IF ( [Tem Leitura], [Δ RPU] + 1.959964 * [EP RPU] )
+		formatString: +"R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ 0.00
+		displayFolder: 5. Receita por usuário
+		lineageTag: e7bb84a9-7ed4-530f-93e0-e3ffa6c81439
+
+	measure 'Atribuídos no Dia C' =
+			-- Não acumulada: o eixo (dt_atribuicao) define o dia; vazia depois da data de corte
+			IF ( MAX ( ab_testes[dt_atribuicao] ) <= [Corte Selecionado], CALCULATE ( COUNTROWS ( ab_testes ), ab_testes[experimento] = "exp_onboarding_v2", ab_testes[variante] = "controle" ) )
+		formatString: #,0
+		displayFolder: 6. Atribuição diária
+		lineageTag: d33de5d8-40c2-5022-ad22-61cec70b9af7
+
+	measure 'Atribuídos no Dia B' = IF ( MAX ( ab_testes[dt_atribuicao] ) <= [Corte Selecionado], CALCULATE ( COUNTROWS ( ab_testes ), ab_testes[experimento] = "exp_onboarding_v2", ab_testes[variante] = "variante_b" ) )
+		formatString: #,0
+		displayFolder: 6. Atribuição diária
+		lineageTag: 4e4c5212-9406-558d-b3b2-993c1d763b1c
+
+	measure 'SRM z no Dia' =
+			VAR _c = [Atribuídos no Dia C]
+			VAR _b = [Atribuídos no Dia B]
+			VAR _n = _c + _b
+			RETURN IF ( _n > 0, DIVIDE ( _b - _n / 2, SQRT ( _n / 4 ) ) )
+		formatString: +0.00;-0.00;0.00
+		displayFolder: 6. Atribuição diária
+		lineageTag: e55569b7-73ae-5c6d-bf6f-aae3870361d1
+
+	measure '% Variante no Dia' = DIVIDE ( [Atribuídos no Dia B], [Atribuídos no Dia C] + [Atribuídos no Dia B] )
+		formatString: 0.0%
+		displayFolder: 6. Atribuição diária
+		lineageTag: 1445581c-4972-509f-8fcc-8ef9380d1588
+
+	measure 'Cor Dia SRM' =
+			-- vermelhão se |z| > 3,29 (alerta); âmbar se |z| > 1,96 (aviso); azul no esperado
+			VAR _z = ABS ( [SRM z no Dia] )
+			RETURN IF ( _z > 3.29, "#D55E00", IF ( _z > 1.96, "#E69F00", "#0072B2" ) )
+		displayFolder: 6. Atribuição diária
+		lineageTag: 5235bb23-cad4-5698-a2f9-7e7c3a5ef345
+
+	measure Status =
+			VAR _corte = [Corte Efetivo]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        [Alerta SRM], "srm",
+			        _corte < [Fim Entrada], "coletando",
+			        _corte < [Data Decisão], "maturando",
+			        MIN ( [Maduros C], [Maduros B] ) < [Amostra Necessária por Braço], "amostra",
+			        "pronto"
+			    )
+		displayFolder: 7. Status e textos
+		lineageTag: 0dff5015-3331-5cfe-aef4-a287892542b2
+
+	measure 'Aviso Leitura' =
+			VAR _decisao = FORMAT ( [Data Decisão], "dd/mm" )
+			VAR _dia = INT ( [Corte Efetivo] - [Início Teste] ) + 1
+			RETURN
+			    SWITCH (
+			        [Status],
+			        "srm", "⛔ PARE: divisão fora de 50/50 (SRM). Investigue a atribuição antes de ler qualquer resultado.",
+			        "coletando",
+			            "⏳ NÃO DECIDA ANTES DE " & _decisao & ": dia " & _dia & " de " & [Duração Planejada]
+			                & " de entrada, e a última coorte ainda precisa de 7 dias para medir a ativação.",
+			        "maturando",
+			            "⏳ NÃO DECIDA ANTES DE " & _decisao
+			                & ": entrada encerrada, mas as últimas coortes ainda não completaram 7 dias.",
+			        "amostra",
+			            "⚠ AMOSTRA INSUFICIENTE: o teste não tem poder para detectar +2 p.p. Não estenda só porque está perto de p < 0,05.",
+			        "✔ PRONTO PARA DECISÃO: duração e amostra atingidas. Decida pelo IC contra o MDE de +2 p.p., não só pelo p-valor."
+			    )
+		displayFolder: 7. Status e textos
+		lineageTag: 6edb16c6-760b-571b-9440-a5aa2a2d93a4
+
+	measure 'Cor Aviso' = SWITCH ( [Status], "srm", "#D55E00", "pronto", "#0072B2", "#B45309" )
+		displayFolder: 7. Status e textos
+		lineageTag: 8a56e51d-9b10-560f-a0a0-bee98e7ae9d2
+
+	measure 'Cor SRM' = IF ( [Alerta SRM], "#D55E00", "#0072B2" )
+		displayFolder: 7. Status e textos
+		lineageTag: 61a86da5-5711-51c2-97c1-4168db36a718
+
+	measure 'Texto Duração' =
+			VAR _corte = [Corte Efetivo]
+			VAR _decisao = FORMAT ( [Data Decisão], "dd/mm" )
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        _corte <= [Fim Entrada],
+			            "dia " & [Dias Entrada Decorridos] & " de " & [Duração Planejada] & " de entrada · decisão em " & _decisao,
+			        _corte < [Data Decisão],
+			            "entrada completa · maturação: dia " & INT ( _corte - [Fim Entrada] ) & " de " & [Janela Conversão]
+			                & " · decisão em " & _decisao,
+			        "entrada e maturação completas · pode decidir"
+			    )
+		displayFolder: 7. Status e textos
+		lineageTag: b1b7f58e-0800-525a-9811-48f3e2a8ece8
+
+	measure 'Texto Amostra' =
+			"C " & FORMAT ( [Maduros C], "#,0", "pt-BR" ) & " · B " & FORMAT ( [Maduros B], "#,0", "pt-BR" )
+			    & " · necessária " & FORMAT ( [Amostra Necessária por Braço], "#,0", "pt-BR" ) & " por braço"
+		displayFolder: 7. Status e textos
+		lineageTag: 97b9d89b-9280-5322-9d25-b54b0e85e80f
+
+	measure 'Texto SRM' =
+			IF ( [Alerta SRM], "⚠ fora de 50/50", "✔ dentro do esperado" )
+			    & " · z = " & FORMAT ( [SRM z], "+0.00;-0.00", "pt-BR" ) & " (alerta se |z| > 3,29)"
+		displayFolder: 7. Status e textos
+		lineageTag: 4a21fc6c-1631-534b-9f56-4b489d553325
+
+	measure 'Texto Taxas' =
+			IF (
+			    [Tem Leitura],
+			    "Controle " & FORMAT ( [Taxa C], "0.00%", "pt-BR" ) & " · Variante B " & FORMAT ( [Taxa B], "0.00%", "pt-BR" )
+			)
+		displayFolder: 7. Status e textos
+		lineageTag: 1007db92-a3a0-53b4-b993-7aef90bbaa2f
+
+	measure 'Texto IC' =
+			IF (
+			    [Tem Leitura],
+			    "IC 95%: " & FORMAT ( [IC Inf p.p.], "+0.00;-0.00", "pt-BR" ) & " a "
+			        & FORMAT ( [IC Sup p.p.], "+0.00;-0.00", "pt-BR" ) & " p.p."
+			)
+		displayFolder: 7. Status e textos
+		lineageTag: ee0f38b6-fb51-53a5-9165-19c419940d52
+
+	measure 'Texto Relativo' =
+			IF (
+			    [Tem Leitura],
+			    "Relativo: " & FORMAT ( [Δ Relativo], "+0.0%;-0.0%", "pt-BR" ) & " (IC "
+			        & FORMAT ( [IC Rel Inf], "+0.0%;-0.0%", "pt-BR" ) & " a " & FORMAT ( [IC Rel Sup], "+0.0%;-0.0%", "pt-BR" ) & ")"
+			)
+		displayFolder: 7. Status e textos
+		lineageTag: 92d27530-3a0a-5ed1-af9d-3b2611c98c92
+
+	measure 'Texto RPU' =
+			IF (
+			    [Tem Leitura],
+			    "Δ " & FORMAT ( [Δ RPU], "+R$ 0.00;-R$ 0.00", "pt-BR" ) & " (IC " & FORMAT ( [IC RPU Inf], "+0.00;-0.00", "pt-BR" )
+			        & " a " & FORMAT ( [IC RPU Sup], "+0.00;-0.00", "pt-BR" ) & ") · métrica secundária"
+			)
+		displayFolder: 7. Status e textos
+		lineageTag: c448276d-d521-5e70-b899-09fbb1f53377
+
+	measure 'Título Diferença' =
+			VAR _primeiraLeitura = [Início Teste] + [Janela Conversão]
+			VAR _inicial = CALCULATE ( [Δ p.p.], TREATAS ( { _primeiraLeitura }, 'Linha do Tempo'[Data] ) )
+			RETURN
+			    IF (
+			        [Tem Leitura],
+			        "Diferença foi de " & FORMAT ( _inicial, "+0.0;-0.0", "pt-BR" ) & " para "
+			            & FORMAT ( [Δ p.p.], "+0.0;-0.0", "pt-BR" ) & " p.p.: as primeiras coortes não representam o efeito",
+			        "Diferença B − C: aguardando a 1ª coorte completar 7 dias"
+			    )
+		displayFolder: 7. Status e textos
+		lineageTag: 43c5f462-b041-57e9-a063-e8bd976f50a9
+
+	measure 'Título Receita' =
+			IF (
+			    [Tem Leitura],
+			    "Receita por usuário (7 dias): "
+			        & IF ( [IC RPU Inf] > 0 || [IC RPU Sup] < 0, "diferença significativa", "diferença não significativa" ),
+			    "Receita por usuário: aguardando coortes maduras"
+			)
+		displayFolder: 7. Status e textos
+		lineageTag: 222aea5d-c1bc-56ef-a7dd-4f364384efb4
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+				  Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"Column1"})
+				in
+				  #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

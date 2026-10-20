@@ -1,0 +1,45 @@
+{
+  "name": "Fluenta AARRR (seguro para daltônicos)",
+  "dataColors": [
+    "#0072B2",
+    "#9ECAE1",
+    "#999999",
+    "#E69F00",
+    "#009E73",
+    "#56B4E9",
+    "#CC79A7",
+    "#D55E00"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#1F2937",
+  "tableAccent": "#0072B2",
+  "good": "#0072B2",
+  "neutral": "#999999",
+  "bad": "#D55E00",
+  "maximum": "#0072B2",
+  "center": "#9ECAE1",
+  "minimum": "#F7FBFF",
+  "null": "#E5E7EB",
+  "textClasses": {
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 24,
+      "color": "#1F2937"
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#1F2937"
+    },
+    "header": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 11,
+      "color": "#1F2937"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 9,
+      "color": "#4B5563"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "e2320fd3ad185123b067",
+  "position": {
+    "x": 24,
+    "y": 8,
+    "z": 100,
+    "height": 70,
+    "width": 1350,
+    "tabOrder": 100
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "exp_onboarding_v2 · Novo onboarding",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "22pt",
+                      "color": "#1f2937"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Hipótese: o onboarding v2 aumenta a ativação (3+ lições em 7 dias) de 20% para pelo menos 22% · regra pré-registrada: 21 dias de entrada + 7 de maturação, MDE +2 p.p.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#4b5563"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "454e3149550e4d431260",
+  "displayName": "Funil AARRR",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "visualInteractions": [
+    {
+      "source": "1b392fdf30aea31fefdb",
+      "target": "60c841260eb3559db9b0",
+      "type": "NoFilter"
+    },
+    {
+      "source": "1b392fdf30aea31fefdb",
+      "target": "ed920c6a3d2452149e8a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "1b392fdf30aea31fefdb",
+      "target": "d4ba00c06dcc554092d6",
+      "type": "NoFilter"
+    }
+  ]
+}

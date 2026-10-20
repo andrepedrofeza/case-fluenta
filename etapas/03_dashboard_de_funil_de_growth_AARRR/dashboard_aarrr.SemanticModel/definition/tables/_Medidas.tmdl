@@ -1,0 +1,397 @@
+table _Medidas
+	lineageTag: c8fa74c4-e6cb-44ec-a2fd-65cb5b03a3c8
+
+	measure Cadastros = COUNTROWS ( fact_onboarding_aluno )
+		formatString: #,0
+		displayFolder: 1. Aquisição
+		lineageTag: c230836d-9cf1-408e-841a-5af340772659
+
+	measure 'Usuários instrumentados' = COUNT ( fact_onboarding_aluno[ativado] )
+		formatString: #,0
+		displayFolder: 2. Ativação e Retenção
+		lineageTag: 58e614ce-a3c5-435b-a673-471bb781ae12
+
+	measure 'Taxa Ativação' = AVERAGE ( fact_onboarding_aluno[ativado] )
+		formatString: 0.0%
+		displayFolder: 2. Ativação e Retenção
+		lineageTag: ddbf6804-1ac8-458f-95b4-4810773f2e02
+
+	measure 'Retenção D30' = AVERAGE ( fact_onboarding_aluno[retido_d30] )
+		formatString: 0.0%
+		displayFolder: 2. Ativação e Retenção
+		lineageTag: 19b5bc89-6a5d-4ad6-9779-2889af09baeb
+
+	measure 'Alunos Ativados (est.)' = [Cadastros] * [Taxa Ativação]
+		formatString: #,0
+		displayFolder: 0. North Star
+		lineageTag: 76f9e200-0755-4f30-84eb-0c145ffdf115
+
+	measure 'Receita Líquida' =
+			CALCULATE (
+			    SUM ( fact_vendas[valor_liquido] ),
+			    fact_vendas[status_pagamento] = "aprovado",
+			    fact_vendas[venda_gratuita] = FALSE ()
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 3. Receita
+		lineageTag: 14fffc55-12b8-4f54-b158-8832deb39124
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Vendas Válidas' =
+			CALCULATE (
+			    COUNTROWS ( fact_vendas ),
+			    fact_vendas[status_pagamento] = "aprovado",
+			    fact_vendas[venda_gratuita] = FALSE ()
+			)
+		formatString: #,0
+		displayFolder: 3. Receita
+		lineageTag: 14ced41e-ba81-4c96-a61a-fee8490bd2c6
+
+	measure 'Ticket Médio' = DIVIDE ( [Receita Líquida], [Vendas Válidas] )
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 3. Receita
+		lineageTag: 0ad0cfdc-df49-4cfd-82c6-9fe58e640071
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure '% Receita Assinatura' = DIVIDE ( CALCULATE ( [Receita Líquida], dim_produto[tipo_produto] = "Assinatura" ), [Receita Líquida] )
+		formatString: 0.0%
+		displayFolder: 3. Receita
+		lineageTag: a751fbca-7c06-4e20-b5c4-b0ffa889acf1
+
+	measure '% Cadastros Indicação' =
+			DIVIDE (
+			    CALCULATE ( [Cadastros], REMOVEFILTERS ( dim_canal ), dim_canal[grupo_canal] = "Indicação" ),
+			    CALCULATE ( [Cadastros], REMOVEFILTERS ( dim_canal ) )
+			)
+		formatString: 0.0%
+		displayFolder: 4. Recomendação
+		lineageTag: 5059d6a7-4bbb-4fd3-ad6f-6070c8c6b2e2
+
+	measure 'Cor Amostra' = IF ( [Usuários Instrumentados] < 100, "#9ECAE1", "#0072B2" )
+		displayFolder: 7. Cores
+		lineageTag: dd622fcb-a654-4724-854c-999dbd5a06cc
+
+	measure 'Alunos Ativados (amostra)' = CALCULATE ( COUNTROWS ( fact_onboarding_aluno ), fact_onboarding_aluno[ativado] = 1 )
+		formatString: #,0
+		displayFolder: 0. North Star
+		lineageTag: 3d0375a0-05ba-4f31-868f-769bc8b00260
+
+	measure 'PA Início' =
+			VAR _ini = MIN ( dim_data[data] )
+			VAR _dias = INT ( MAX ( dim_data[data] ) - _ini ) + 1
+			RETURN _ini - _dias
+		formatString: dd/mm/yyyy
+		displayFolder: 5. Período anterior
+		lineageTag: 79c2ac0f-6f13-4731-9f87-28e09a7e4cbc
+
+	measure 'PA Fim' = MIN ( dim_data[data] ) - 1
+		formatString: dd/mm/yyyy
+		displayFolder: 5. Período anterior
+		lineageTag: 52bf8be3-df39-4f3c-b3ab-1aa4375c2c13
+
+	measure 'Alunos Ativados PA' =
+			CALCULATE (
+			    [Alunos Ativados (est.)],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: #,0
+		displayFolder: 5. Período anterior
+		lineageTag: 0d92d740-a8d8-478c-b943-f6719b654ad1
+
+	measure 'Cadastros PA' =
+			CALCULATE (
+			    [Cadastros],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: #,0
+		displayFolder: 5. Período anterior
+		lineageTag: 4977b5c2-10cd-48f7-8d81-e41b6e5ddbf5
+
+	measure 'Taxa Ativação PA' =
+			CALCULATE (
+			    [Taxa Ativação],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: 0.0%
+		displayFolder: 5. Período anterior
+		lineageTag: 71701fe9-6dfd-4d69-b658-91f6826e1b2a
+
+	measure 'Retenção D30 PA' =
+			CALCULATE (
+			    [Retenção D30],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: 0.0%
+		displayFolder: 5. Período anterior
+		lineageTag: 81bb70ba-3cb1-487f-854f-b37775b92526
+
+	measure 'Receita Líquida PA' =
+			CALCULATE (
+			    [Receita Líquida],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 5. Período anterior
+		lineageTag: 5adc2653-1f98-4094-b444-cb2e3edc5c09
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Vendas Válidas PA' =
+			CALCULATE (
+			    [Vendas Válidas],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: #,0
+		displayFolder: 5. Período anterior
+		lineageTag: bb8f4517-17c8-449a-ac55-9cd3370aab51
+
+	measure 'Ticket Médio PA' =
+			CALCULATE (
+			    [Ticket Médio],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: 5. Período anterior
+		lineageTag: 40e26416-61ad-424e-85b6-ab5195d5510c
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure '% Receita Assinatura PA' =
+			CALCULATE (
+			    [% Receita Assinatura],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: 0.0%
+		displayFolder: 5. Período anterior
+		lineageTag: bff130d8-db39-4f7f-952c-453fd925b9bb
+
+	measure '% Cadastros Indicação PA' =
+			CALCULATE (
+			    [% Cadastros Indicação],
+			    REMOVEFILTERS ( dim_data ),
+			    DATESBETWEEN ( dim_data[data], [PA Início], [PA Fim] )
+			)
+		formatString: 0.0%
+		displayFolder: 5. Período anterior
+		lineageTag: 591b2526-f95c-4031-adba-872d4ca4d254
+
+	measure 'Δ Alunos Ativados' = DIVIDE ( [Alunos Ativados (est.)] - [Alunos Ativados PA], [Alunos Ativados PA] )
+		formatString: ▲ 0.0%;▼ 0.0%;0.0%
+		displayFolder: 6. Variação
+		lineageTag: 6278b843-8512-42e8-872d-d96c060e18a9
+
+	measure 'Δ Cadastros' = DIVIDE ( [Cadastros] - [Cadastros PA], [Cadastros PA] )
+		formatString: ▲ 0.0%;▼ 0.0%;0.0%
+		displayFolder: 6. Variação
+		lineageTag: 2a73c3ee-d7ff-4411-a5cd-393d0238a4dc
+
+	measure 'Δ Taxa Ativação (p.p.)' =
+			IF (
+			    NOT ISBLANK ( [Taxa Ativação] ) && NOT ISBLANK ( [Taxa Ativação PA] ),
+			    ( [Taxa Ativação] - [Taxa Ativação PA] ) * 100
+			)
+		formatString: ▲ 0.0 \p\.\p\.;▼ 0.0 \p\.\p\.;0.0 \p\.\p\.
+		displayFolder: 6. Variação
+		lineageTag: c8eda776-bbc9-474d-809b-3f10c9d76813
+
+	measure 'Δ Retenção D30 (p.p.)' =
+			IF (
+			    NOT ISBLANK ( [Retenção D30] ) && NOT ISBLANK ( [Retenção D30 PA] ),
+			    ( [Retenção D30] - [Retenção D30 PA] ) * 100
+			)
+		formatString: ▲ 0.0 \p\.\p\.;▼ 0.0 \p\.\p\.;0.0 \p\.\p\.
+		displayFolder: 6. Variação
+		lineageTag: e0708b3b-6a04-4c38-aa00-0558daf77495
+
+	measure 'Δ Receita Líquida' = DIVIDE ( [Receita Líquida] - [Receita Líquida PA], [Receita Líquida PA] )
+		formatString: ▲ 0.0%;▼ 0.0%;0.0%
+		displayFolder: 6. Variação
+		lineageTag: 346fc2cd-628e-40b6-9f78-22ce81e40357
+
+	measure 'Δ Vendas Válidas' = DIVIDE ( [Vendas Válidas] - [Vendas Válidas PA], [Vendas Válidas PA] )
+		formatString: ▲ 0.0%;▼ 0.0%;0.0%
+		displayFolder: 6. Variação
+		lineageTag: be2203bb-aa16-468d-84d9-deeec5970521
+
+	measure 'Δ Ticket Médio' = DIVIDE ( [Ticket Médio] - [Ticket Médio PA], [Ticket Médio PA] )
+		formatString: ▲ 0.0%;▼ 0.0%;0.0%
+		displayFolder: 6. Variação
+		lineageTag: 8c9ac838-191a-476c-8388-5143180edc97
+
+	measure 'Δ % Receita Assinatura (p.p.)' =
+			IF (
+			    NOT ISBLANK ( [% Receita Assinatura] ) && NOT ISBLANK ( [% Receita Assinatura PA] ),
+			    ( [% Receita Assinatura] - [% Receita Assinatura PA] ) * 100
+			)
+		formatString: ▲ 0.0 \p\.\p\.;▼ 0.0 \p\.\p\.;0.0 \p\.\p\.
+		displayFolder: 6. Variação
+		lineageTag: ef76d918-ad75-48d6-bb67-5cfc7484b5c1
+
+	measure 'Δ % Cadastros Indicação (p.p.)' =
+			IF (
+			    NOT ISBLANK ( [% Cadastros Indicação] ) && NOT ISBLANK ( [% Cadastros Indicação PA] ),
+			    ( [% Cadastros Indicação] - [% Cadastros Indicação PA] ) * 100
+			)
+		formatString: ▲ 0.0 \p\.\p\.;▼ 0.0 \p\.\p\.;0.0 \p\.\p\.
+		displayFolder: 6. Variação
+		lineageTag: 49db67fc-fb72-429a-8591-8cda4aada062
+
+	measure 'Resposta Saudável' =
+			VAR _rec = DIVIDE ( [Receita Líquida] - [Receita Líquida PA], [Receita Líquida PA] )
+			VAR _cad = [Δ Cadastros]
+			VAR _ret = [Retenção D30]
+			RETURN
+			    -- Critério de "saudável" a combinar com o Growth: cadastros crescendo e retenção D30 >= 40%
+			    IF ( _cad > 0 && _ret >= 0.4, "Sim: ", "Ainda não: " )
+			        & "receita " & FORMAT ( _rec, "+0%;-0%" )
+			        & ", cadastros " & FORMAT ( _cad, "+0%;-0%" )
+			        & " e só " & FORMAT ( _ret, "0%" ) & " dos alunos seguem estudando após 30 dias."
+		displayFolder: 8. Textos
+		lineageTag: 791a2ed3-a378-4b3e-a5c1-a90d27cf6d4a
+
+	measure 'Texto Comparação' =
+			VAR _ini = MIN ( dim_data[data] )
+			VAR _dias = INT ( MAX ( dim_data[data] ) - _ini ) + 1
+			VAR _ultimaVenda = CALCULATE ( MAX ( fact_vendas[data_id] ), REMOVEFILTERS () )
+			VAR _ultimoCadastro = CALCULATE ( MAX ( fact_onboarding_aluno[data_id] ), REMOVEFILTERS () )
+			-- Última coorte com ativação/retenção medidas (fora disso, as taxas não existem)
+			VAR _ultimaCoorte =
+			    CALCULATE ( MAX ( fact_onboarding_aluno[data_id] ), REMOVEFILTERS (), NOT ISBLANK ( fact_onboarding_aluno[ativado] ) )
+			RETURN
+			    "Comparação: " & FORMAT ( _ini - _dias, "dd/mm/yy" ) & "–" & FORMAT ( _ini - 1, "dd/mm/yy" )
+			        & " (mesma duração) · Vendas até " & FORMAT ( LOOKUPVALUE ( dim_data[data], dim_data[data_id], _ultimaVenda ), "dd/mm" )
+			        & " · cadastros até " & FORMAT ( LOOKUPVALUE ( dim_data[data], dim_data[data_id], _ultimoCadastro ), "dd/mm" )
+			        & " · ativação e retenção até " & FORMAT ( LOOKUPVALUE ( dim_data[data], dim_data[data_id], _ultimaCoorte ), "dd/mm" )
+		displayFolder: 8. Textos
+		lineageTag: 2f021922-7976-4af0-89a6-90b1cd65a47c
+
+	measure 'Título Aquisição' =
+			VAR _top = TOPN ( 1, ALLSELECTED ( dim_canal[grupo_canal] ), [Cadastros] )
+			RETURN
+			    "Cadastros " & FORMAT ( [Δ Cadastros], "+0%;-0%" ) & " vs período anterior; "
+			        & CONCATENATEX ( _top, dim_canal[grupo_canal], ", " ) & " traz "
+			        & FORMAT ( DIVIDE ( CALCULATE ( [Cadastros], _top ), [Cadastros] ), "0%" )
+		displayFolder: 8. Textos
+		lineageTag: b21ce692-221a-4b5c-bca5-4b90df2c1623
+
+	measure 'Título Ativação' =
+			"Histórico mensal: ativação de " & FORMAT ( [Taxa Ativação], "0%" ) & "; "
+			    & FORMAT ( 1 - [Taxa Ativação], "0%" ) & " dos novos alunos não chegam a 3 lições na 1ª semana"
+		displayFolder: 8. Textos
+		lineageTag: 58f2f97b-6b2a-4e29-a17f-38a7560807ba
+
+	measure 'Título Receita' =
+			VAR _meses = ADDCOLUMNS ( VALUES ( dim_data[inicio_mes] ), "@r", [Receita Líquida] )
+			VAR _pico = TOPN ( 1, _meses, [@r] )
+			RETURN
+			    "Histórico mensal: receita média de " & FORMAT ( AVERAGEX ( _meses, [@r] ) / 1000, "#,0", "pt-BR" ) & " mil/mês; pico em "
+			        & FORMAT ( MAXX ( _pico, dim_data[inicio_mes] ), "mmm/yy", "pt-BR" )
+		displayFolder: 8. Textos
+		lineageTag: 422d7d51-e07d-4948-88fc-87beafc6a383
+
+	measure 'Título Recomendação' = "Histórico mensal: indicação traz " & FORMAT ( [% Cadastros Indicação], "0.0%", "pt-BR" ) & " dos cadastros (proxy de recomendação)"
+		displayFolder: 8. Textos
+		lineageTag: 2e42c321-e335-49e2-91fd-03405b987043
+
+	measure 'Título Evidência' =
+			VAR _ativ = CALCULATE ( [Retenção D30], fact_onboarding_aluno[ativado] = 1 )
+			VAR _nao = CALCULATE ( [Retenção D30], fact_onboarding_aluno[ativado] = 0 )
+			RETURN
+			    "Onde agir: quem ativa na 1ª semana retém " & FORMAT ( DIVIDE ( _ativ, _nao ), "0.0", "pt-BR" ) & "× mais em D30"
+		displayFolder: 8. Textos
+		lineageTag: 2f0c235e-8b2b-43b1-9450-4c4c8c09b9a2
+
+	measure 'Título Retenção' =
+			-- Segue o Período: a faixa entre canais é calculada no recorte, em vez de afirmar que nenhum canal destoa
+			VAR _canais =
+			    FILTER (
+			        ADDCOLUMNS ( VALUES ( dim_canal[grupo_canal] ), "@r", [Retenção D30] ),
+			        NOT ISBLANK ( [@r] )
+			    )
+			RETURN
+			    "Só " & FORMAT ( [Retenção D30], "0%" ) & " seguem estudando em D30; por canal, de "
+			        & FORMAT ( MINX ( _canais, [@r] ), "0%" ) & " a " & FORMAT ( MAXX ( _canais, [@r] ), "0%" )
+		displayFolder: 8. Textos
+		lineageTag: 77e207e1-5df9-47d6-8b11-7a1e9ab36c36
+
+	measure 'Cor Δ Alunos Ativados' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Δ Alunos Ativados] ), "#999999",
+			    [Δ Alunos Ativados] < 0, "#D55E00",
+			    "#0072B2"
+			)
+		displayFolder: 7. Cores
+		lineageTag: 92b1f64d-4ded-493e-8901-325fbd4397b8
+
+	measure 'Cor Δ Cadastros' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Δ Cadastros] ), "#999999",
+			    [Δ Cadastros] < 0, "#D55E00",
+			    "#0072B2"
+			)
+		displayFolder: 7. Cores
+		lineageTag: 7de63c9a-33b8-4ba3-860a-afbaa2692df2
+
+	measure 'Cor Δ Taxa Ativação (p.p.)' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Δ Taxa Ativação (p.p.)] ), "#999999",
+			    [Δ Taxa Ativação (p.p.)] < 0, "#D55E00",
+			    "#0072B2"
+			)
+		displayFolder: 7. Cores
+		lineageTag: 306fd9ba-023b-4eee-b4c7-bb4a23062235
+
+	measure 'Cor Δ Retenção D30 (p.p.)' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Δ Retenção D30 (p.p.)] ), "#999999",
+			    [Δ Retenção D30 (p.p.)] < 0, "#D55E00",
+			    "#0072B2"
+			)
+		displayFolder: 7. Cores
+		lineageTag: 8498a747-0ad4-4e83-ac6d-289476875c97
+
+	measure 'Cor Δ Receita Líquida' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Δ Receita Líquida] ), "#999999",
+			    [Δ Receita Líquida] < 0, "#D55E00",
+			    "#0072B2"
+			)
+		displayFolder: 7. Cores
+		lineageTag: 403bd140-c0f4-4395-a064-696463170d37
+
+	measure 'Cor Δ % Cadastros Indicação (p.p.)' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Δ % Cadastros Indicação (p.p.)] ), "#999999",
+			    [Δ % Cadastros Indicação (p.p.)] < 0, "#D55E00",
+			    "#0072B2"
+			)
+		displayFolder: 7. Cores
+		lineageTag: 31aed80b-af65-4086-adaf-0b499f5310ae
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+				  Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"Column1"})
+				in
+				  #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

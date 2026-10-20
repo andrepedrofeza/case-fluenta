@@ -1,0 +1,28 @@
+relationship AutoDetected_12a64ae9-a82b-4d6c-8f0c-6e84fd282d83
+	fromColumn: fact_vendas.canal_id
+	toColumn: dim_canal.canal_id
+
+relationship AutoDetected_dbd03f3b-dbd9-4a15-a03a-8473ff3eda87
+	fromColumn: fact_vendas.cliente_id
+	toColumn: dim_cliente.cliente_id
+
+relationship AutoDetected_9f38d307-d970-46de-a6f3-48ce7e69bfc3
+	fromColumn: fact_vendas.data_id
+	toColumn: dim_data.data_id
+
+relationship AutoDetected_7c8e3446-94b6-453a-8473-9b9c8e6dd1be
+	fromColumn: fact_vendas.produto_id
+	toColumn: dim_produto.produto_id
+
+relationship AutoDetected_ff398860-b617-460d-b0d4-3f36097d2fe2
+	fromColumn: fact_onboarding_aluno.canal_id
+	toColumn: dim_canal.canal_id
+
+relationship AutoDetected_df26f868-e461-4d06-a4b2-7aedd1e943b8
+	fromColumn: fact_onboarding_aluno.cliente_id
+	toColumn: dim_cliente.cliente_id
+
+relationship AutoDetected_99a13e85-5293-4efb-b525-8f2263787762
+	fromColumn: fact_onboarding_aluno.data_id
+	toColumn: dim_data.data_id
+

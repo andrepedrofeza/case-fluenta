@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "eb7f655f62935158b0bb",
+  "position": {
+    "x": 24,
+    "y": 982,
+    "z": 1100,
+    "height": 90,
+    "width": 1872,
+    "tabOrder": 1100
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "NOTAS",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#1F2937",
+                      "fontWeight": "bold"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Definições: conversão = ativou (3+ lições em 7 dias); só entram usuários com 7 dias completos desde a atribuição (maduros) · receita = receita dos 7 primeiros dias · amostra necessária: baseline 20%, MDE +2 p.p., α 5% bilateral, poder 80%.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#4B5563"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Método: IC 95% pela aproximação normal; IC relativo ≈ IC absoluto / taxa do controle · SRM checado todo dia, com alerta só se |z| > 3,29 (com 21 checagens a 5%, um alarme falso é esperado) · p-valor só na dica do cartão: decida pelo IC contra o MDE.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#4B5563"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Regra: não encerrar antes da data de decisão nem estender o teste por estar perto de p < 0,05 · Dados até 20/09/2026.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#4B5563"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,48 @@
+table dim_canal
+	lineageTag: f3cc06c4-4b27-4f75-b4bb-01f0330e4c49
+
+	column canal_id
+		dataType: int64
+		formatString: 0
+		lineageTag: efbb1e4d-ce4e-41f2-b5c6-d616156e452f
+		summarizeBy: none
+		sourceColumn: canal_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column source
+		dataType: string
+		lineageTag: ee2f5a39-0f3d-4da6-8086-60e9d4021461
+		summarizeBy: none
+		sourceColumn: source
+
+		annotation SummarizationSetBy = Automatic
+
+	column medium
+		dataType: string
+		lineageTag: fa2c510a-ca46-4964-8743-012ee8b9ab70
+		summarizeBy: none
+		sourceColumn: medium
+
+		annotation SummarizationSetBy = Automatic
+
+	column grupo_canal
+		dataType: string
+		lineageTag: 20d043bb-1dda-4c08-b53b-793ed95789d7
+		summarizeBy: none
+		sourceColumn: grupo_canal
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_canal = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(PastaRepo & "\dados\dim_canal.csv"), [Delimiter = ",", Columns = 4, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"canal_id", Int64.Type}, {"source", type text}, {"medium", type text}, {"grupo_canal", type text}})
+				in
+				  #"Changed column type"
+
+	annotation PBI_ResultType = Table
+

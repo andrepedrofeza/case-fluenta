@@ -1,0 +1,113 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 88
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 424.2861830939305,
+            "y": 928.125
+          },
+          "nodeIndex": "dim_canal",
+          "nodeLineageTag": "f3cc06c4-4b27-4f75-b4bb-01f0330e4c49",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 416.73217222585981,
+            "y": 545.125
+          },
+          "nodeIndex": "dim_cliente",
+          "nodeLineageTag": "60445b4e-cb3d-4654-aa58-6701fc575ea8",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 1404.4170497268769,
+            "y": 715.125
+          },
+          "nodeIndex": "dim_data",
+          "nodeLineageTag": "7ba0d0db-0e28-4ca4-9585-5d2f63d59910",
+          "size": {
+            "height": 226,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 924.14767553732736,
+            "y": 145.125
+          },
+          "nodeIndex": "dim_produto",
+          "nodeLineageTag": "c447c857-86ef-4e6b-b2ea-ba9cd918d16b",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 926.02435890283527,
+            "y": 527.37163326898451
+          },
+          "nodeIndex": "fact_vendas",
+          "nodeLineageTag": "c29aec83-4be7-420c-91f8-bb8f2ee8ef1d",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 923.86149244339686,
+            "y": 910.74831663449231
+          },
+          "nodeIndex": "fact_onboarding_aluno",
+          "nodeLineageTag": "8cb77908-ac2e-4e3d-84d5-40a8ab3e80bc",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1271.6848775010171,
+            "y": 529.18665831724616
+          },
+          "nodeIndex": "_Medidas",
+          "nodeLineageTag": "c8fa74c4-e6cb-44ec-a2fd-65cb5b03a3c8",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

@@ -1,0 +1,119 @@
+table dim_data
+	lineageTag: 7ba0d0db-0e28-4ca4-9585-5d2f63d59910
+	dataCategory: Time
+
+	column data_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 370b3d60-a745-4211-b726-01c1d351a556
+		summarizeBy: none
+		sourceColumn: data_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column data
+		dataType: dateTime
+		isKey
+		formatString: Long Date
+		lineageTag: 86c3877d-0216-429a-af78-fcb59e7344d3
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ano
+		dataType: int64
+		formatString: 0
+		lineageTag: 3c62b58c-1514-4ec9-b435-6d9292fb2c22
+		summarizeBy: sum
+		sourceColumn: ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column mes
+		dataType: int64
+		formatString: 0
+		lineageTag: db84fe10-f2f2-4a84-947e-bbe936152451
+		summarizeBy: sum
+		sourceColumn: mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_mes
+		dataType: string
+		lineageTag: 8a5e2fa9-4f52-4490-85cd-e13dad4d6a00
+		summarizeBy: none
+		sourceColumn: nome_mes
+
+		annotation SummarizationSetBy = Automatic
+
+	column semana_iso
+		dataType: int64
+		formatString: 0
+		lineageTag: 8d183652-550d-4064-b1dd-7780c7a73df4
+		summarizeBy: sum
+		sourceColumn: semana_iso
+
+		annotation SummarizationSetBy = Automatic
+
+	column dia_semana
+		dataType: int64
+		formatString: 0
+		lineageTag: bcc80ebb-d0fb-4dc1-a5b3-a8c8841288a8
+		summarizeBy: sum
+		sourceColumn: dia_semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column fim_de_semana
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: eb959951-bb67-462e-8dcf-08a8bf1f7e9e
+		summarizeBy: none
+		sourceColumn: fim_de_semana
+
+		annotation SummarizationSetBy = Automatic
+
+	column inicio_semana = dim_data[data] - WEEKDAY(dim_data[data], 2) + 1
+		formatString: dd/mm
+		lineageTag: 790ed160-2adf-4067-89a6-d4aeca8ba227
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column inicio_mes = DATE(dim_data[ano], dim_data[mes], 1)
+		formatString: mmm/yy
+		lineageTag: 16cf5d60-0d43-4d4e-b8de-22ac82a9ca61
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mês =
+			-- Usa só colunas da própria dim_data: referenciar uma fato aqui cria um ciclo no Atualizar.
+			-- O calendário termina no último dia com dados, então o mês do último dia é o mês parcial.
+			VAR _ultimoDia = MAX ( dim_data[data] )
+			VAR _mes =
+			    SWITCH ( dim_data[mes], 1, "jan", 2, "fev", 3, "mar", 4, "abr", 5, "mai", 6, "jun",
+			        7, "jul", 8, "ago", 9, "set", 10, "out", 11, "nov", 12, "dez" )
+			RETURN
+			    _mes & "/" & RIGHT ( dim_data[ano], 2 ) & IF ( EOMONTH ( dim_data[data], 0 ) > _ultimoDia, "*" )
+		lineageTag: e7329c65-2922-481e-9962-2691ca86a681
+		summarizeBy: none
+		sortByColumn: inicio_mes
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_data = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(PastaRepo & "\dados\dim_data.csv"), [Delimiter = ",", Columns = 8, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"data_id", Int64.Type}, {"data", type date}, {"ano", Int64.Type}, {"mes", Int64.Type}, {"nome_mes", type text}, {"semana_iso", Int64.Type}, {"dia_semana", Int64.Type}, {"fim_de_semana", type logical}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_ResultType = Table
+

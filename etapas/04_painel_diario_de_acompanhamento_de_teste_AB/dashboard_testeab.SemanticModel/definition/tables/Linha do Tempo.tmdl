@@ -1,0 +1,21 @@
+table 'Linha do Tempo'
+	lineageTag: 0d11f5d7-762e-51f2-9bc0-17ff5e12bc2e
+
+	column Data
+		dataType: dateTime
+		formatString: dd/mm
+		lineageTag: 3ae6f601-42db-5143-b6ec-f0d3f83679d8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Data]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Linha do Tempo' = calculated
+		mode: import
+		source =
+				-- Eixo dos gráficos de evolução: cada ponto recalcula as medidas como se fosse a data de corte
+				SELECTCOLUMNS ( Corte, "Data", Corte[Data] )
+
+	annotation PBI_Id = ec543f75fa6550cd9926e69c440ddf55
+

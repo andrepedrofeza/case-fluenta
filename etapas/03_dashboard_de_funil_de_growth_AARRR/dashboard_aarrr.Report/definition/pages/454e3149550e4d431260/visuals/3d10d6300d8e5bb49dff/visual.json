@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "3d10d6300d8e5bb49dff",
+  "position": {
+    "x": 24,
+    "y": 974,
+    "z": 4000,
+    "height": 98,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "NOTAS DE QUALIDADE",
+                    "textStyle": {
+                      "fontSize": "9pt",
+                      "color": "#1F2937",
+                      "fontWeight": "bold"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Definições: Cadastros por data de cadastro · Ativação = % com 3+ lições nos 7 primeiros dias · Retenção D30 = 1 − churn_d30 · Receita líquida = vendas aprovadas e não gratuitas, pela data da venda · Ticket = receita / vendas válidas · Recomendação = % dos cadastros via canal Indicação · NSM = cadastros × taxa de ativação.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#4B5563"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Limitações: ativação e retenção vêm de uma amostra de ~50% dos cadastros (representativa por canal, objetivo, estado e faixa etária), só com coortes até 14/08/26 · set/26 é parcial (vendas até 20/09) · canal = canal de aquisição (1º toque) · Indicação é proxy e não mede o boca a boca · Período filtra cartões, Aquisição, retenção e \"onde agir\"; as tendências mensais mostram o histórico.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#4B5563"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Atualização: dados até 20/09/2026.",
+                    "textStyle": {
+                      "fontSize": "8pt",
+                      "color": "#4B5563"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

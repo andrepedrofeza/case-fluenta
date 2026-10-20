@@ -1,0 +1,35 @@
+table Corte
+	lineageTag: a19b4e3d-7eb6-54e1-9163-e2f44f75fada
+
+	column Data
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: d1a9f787-94db-547c-a83b-c355401ce6b3
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Data]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rótulo =
+			IF (
+			    Corte[Data] = MAX ( Corte[Data] ),
+			    "Mais recente (" & FORMAT ( Corte[Data], "dd/mm" ) & ")",
+			    FORMAT ( Corte[Data], "dd/mm/yyyy" )
+			)
+		lineageTag: 2be9862e-5017-5ab8-b915-4dd21c4f72db
+		summarizeBy: none
+		sortByColumn: Data
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Corte = calculated
+		mode: import
+		source =
+				-- Datas que a segmentação oferece: do 1º dia de entrada até a maturação da última coorte
+				-- (21 dias de entrada + 7 de maturação). Em produção, o fim seria TODAY ().
+				VAR _ini = CALCULATE ( MIN ( ab_testes[dt_atribuicao] ), ab_testes[experimento] = "exp_onboarding_v2" )
+				RETURN SELECTCOLUMNS ( CALENDAR ( _ini, _ini + 21 - 1 + 7 ), "Data", [Date] )
+
+	annotation PBI_Id = 9c8bc2c3b6675558a4a7ac94de54900f
+

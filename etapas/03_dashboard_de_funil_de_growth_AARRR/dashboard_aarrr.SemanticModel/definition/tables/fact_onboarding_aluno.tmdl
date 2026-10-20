@@ -1,0 +1,113 @@
+table fact_onboarding_aluno
+	lineageTag: 8cb77908-ac2e-4e3d-84d5-40a8ab3e80bc
+
+	column cliente_id
+		dataType: int64
+		formatString: 0
+		lineageTag: a9d03803-1c52-48d3-b8ec-6f4a1a98932d
+		summarizeBy: none
+		sourceColumn: cliente_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column data_id
+		dataType: int64
+		formatString: 0
+		lineageTag: db1dd849-ec8c-46c5-9192-d981d3f15adc
+		summarizeBy: none
+		sourceColumn: data_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column canal_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 48a857bc-26fd-4b6e-84ce-b916dd71ddb7
+		summarizeBy: none
+		sourceColumn: canal_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column instrumentado
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: dae982ed-08e3-4610-b40f-d669fba3c925
+		summarizeBy: none
+		sourceColumn: instrumentado
+
+		annotation SummarizationSetBy = Automatic
+
+	column licoes_concluidas_7d
+		dataType: int64
+		formatString: 0
+		lineageTag: 109901bb-f420-4bc0-b352-49b89550f3d3
+		summarizeBy: sum
+		sourceColumn: licoes_concluidas_7d
+
+		annotation SummarizationSetBy = Automatic
+
+	column sessoes_7d
+		dataType: int64
+		formatString: 0
+		lineageTag: 128911ad-c503-414b-9a97-579ddf39b1d7
+		summarizeBy: sum
+		sourceColumn: sessoes_7d
+
+		annotation SummarizationSetBy = Automatic
+
+	column usou_app
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 121420da-6f6e-4a57-ae55-b66a4028f155
+		summarizeBy: none
+		sourceColumn: usou_app
+
+		annotation SummarizationSetBy = Automatic
+
+	column tem_assinatura
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: f71f9c96-3ce4-44d0-ba32-db1e498113bc
+		summarizeBy: none
+		sourceColumn: tem_assinatura
+
+		annotation SummarizationSetBy = Automatic
+
+	column ativado
+		dataType: int64
+		formatString: 0
+		lineageTag: 64b3730d-648e-4a81-bc3b-d7709446d398
+		summarizeBy: sum
+		sourceColumn: ativado
+
+		annotation SummarizationSetBy = Automatic
+
+	column retido_d30
+		dataType: int64
+		formatString: 0
+		lineageTag: cda8bf79-a298-4a6c-895a-c4e6d2c3fa0f
+		summarizeBy: sum
+		sourceColumn: retido_d30
+
+		annotation SummarizationSetBy = Automatic
+
+	column status_ativacao
+		dataType: string
+		lineageTag: 28c9c226-765c-4370-86ea-eb5906794b70
+		summarizeBy: none
+		sourceColumn: status_ativacao
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_onboarding_aluno = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(PastaRepo & "\etapas\03_dashboard_de_funil_de_growth_AARRR\fact_onboarding_aluno.csv"), [Delimiter = ",", Columns = 11, Encoding = 65001]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"cliente_id", Int64.Type}, {"data_id", Int64.Type}, {"canal_id", Int64.Type}, {"instrumentado", type logical}, {"licoes_concluidas_7d", Int64.Type}, {"sessoes_7d", Int64.Type}, {"usou_app", type logical}, {"tem_assinatura", type logical}, {"ativado", Int64.Type}, {"retido_d30", Int64.Type}, {"status_ativacao", type text}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_ResultType = Table
+

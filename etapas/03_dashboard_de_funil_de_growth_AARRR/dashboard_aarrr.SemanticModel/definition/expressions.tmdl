@@ -1,0 +1,5 @@
+expression PastaRepo = "C:\Users\andre\Área de Trabalho\case-fluenta" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text]
+	lineageTag: b87b0002-323b-4bb4-9b05-dea909fb80dc
+
+	annotation PBI_ResultType = Text
+

@@ -1,0 +1,67 @@
+table dim_produto
+	lineageTag: c447c857-86ef-4e6b-b2ea-ba9cd918d16b
+
+	column produto_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 00205c3d-3520-4cd5-91ae-b9344683f12d
+		summarizeBy: none
+		sourceColumn: produto_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column nome_produto
+		dataType: string
+		lineageTag: d414b608-8c77-49cf-a5cf-6b7a7f74a37e
+		summarizeBy: none
+		sourceColumn: nome_produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column categoria
+		dataType: string
+		lineageTag: ed24eefd-97f1-4d5f-96c5-2acb8b0c1a17
+		summarizeBy: none
+		sourceColumn: categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_produto
+		dataType: string
+		lineageTag: 80ed053c-dc2f-43ca-b1ed-4c2105a1fa33
+		summarizeBy: none
+		sourceColumn: tipo_produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column preco_lista
+		dataType: decimal
+		lineageTag: 1680b3e8-9a44-453d-ab0f-e15c52752785
+		summarizeBy: none
+		sourceColumn: preco_lista
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ativo
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: f99f009e-470c-4972-bc9c-921fa938f6e1
+		summarizeBy: none
+		sourceColumn: ativo
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_produto = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(PastaRepo & "\dados\dim_produto.csv"), [Delimiter = ",", Columns = 6, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"produto_id", Int64.Type}, {"nome_produto", type text}, {"categoria", type text}, {"tipo_produto", type text}, {"preco_lista", Currency.Type}, {"ativo", type logical}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,86 @@
+table ab_testes
+	lineageTag: eb0df3c6-d1aa-5238-bbd6-755c65f1e339
+
+	column experimento
+		dataType: string
+		lineageTag: 1a31b31e-10c8-5600-a35e-4f3d4dcbdc1c
+		summarizeBy: none
+		sourceColumn: experimento
+
+		annotation SummarizationSetBy = Automatic
+
+	column user_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 3be2ed2f-64ec-59de-992f-c65088ed2526
+		summarizeBy: none
+		sourceColumn: user_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column variante
+		dataType: string
+		lineageTag: 0c6c1e88-75e4-5b46-b25c-aca41d1f13ae
+		summarizeBy: none
+		sourceColumn: variante
+
+		annotation SummarizationSetBy = Automatic
+
+	column dt_atribuicao
+		dataType: dateTime
+		formatString: dd/mm
+		lineageTag: de6f92ac-a124-5795-9004-40fccc30b4e2
+		summarizeBy: none
+		sourceColumn: dt_atribuicao
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column dispositivo
+		dataType: string
+		lineageTag: bed517b3-c38b-5007-acf3-87ae20ed07cb
+		summarizeBy: none
+		sourceColumn: dispositivo
+
+		annotation SummarizationSetBy = Automatic
+
+	column converteu
+		dataType: int64
+		formatString: 0
+		lineageTag: 1c4457cb-b41b-5872-a760-426feaf946eb
+		summarizeBy: sum
+		sourceColumn: converteu
+
+		annotation SummarizationSetBy = Automatic
+
+	column converteu_d7
+		dataType: int64
+		formatString: 0
+		lineageTag: 84604526-2e8c-5f26-b7a1-0f7afbe36245
+		summarizeBy: sum
+		sourceColumn: converteu_d7
+
+		annotation SummarizationSetBy = Automatic
+
+	column receita
+		dataType: double
+		formatString: "R$"\ #,0.00
+		lineageTag: 616faca9-c1f2-507b-914f-32d53d20bcf2
+		summarizeBy: sum
+		sourceColumn: receita
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ab_testes = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents(PastaRepo & "\dados\ab_testes.csv"), [Delimiter = ",", Columns = 8, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"experimento", type text}, {"user_id", Int64.Type}, {"variante", type text}, {"dt_atribuicao", type date}, {"dispositivo", type text}, {"converteu", Int64.Type}, {"converteu_d7", Int64.Type}, {"receita", type number}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_ResultType = Table
+

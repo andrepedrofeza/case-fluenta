@@ -1,0 +1,25 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["PastaRepo","dim_canal","dim_cliente","dim_data","dim_produto","fact_vendas","fact_onboarding_aluno","_Medidas"]
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table dim_canal
+ref table dim_cliente
+ref table dim_data
+ref table dim_produto
+ref table fact_vendas
+ref table fact_onboarding_aluno
+ref table _Medidas
+
+ref cultureInfo en-US
+
